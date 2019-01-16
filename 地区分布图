@@ -1,0 +1,56 @@
+#分析各个地区数量
+import jieba
+from pyecharts import Geo,Map
+
+excludes = {"地区","兵团","行政","治区","特别","香港特别行政区","澳门特别行政区","内蒙古自治区","广西壮族自治区","宁夏回族自治区","新疆建设兵团"} #去除特殊词汇
+txt = open("diqu.txt", "r").read()
+lb = []
+lb = txt.replace("省","")  #去除特殊文字
+lb = lb.replace("市","")
+words  = jieba.lcut(lb)  #对列表lb进行精确分词
+counts = {}
+for word in words:
+    if len(word) == 1:
+        continue
+    else:
+        rword = word
+    counts[rword] = counts.get(rword,0) + 1 #词频统计
+for word in excludes:
+    del counts[word]
+items = list(counts.items())
+items.sort(key=lambda x:x[1], reverse=True) #对一个列表按照键值对的两个元素的第二个元素进行排序，reverse为true所以为由大到小的倒排
+
+data=[]
+
+for i in range(30):
+    word,count = items[i]
+    data.append((word,count))
+
+print(data)
+
+
+geo = Geo("青少年科技创新大赛国赛获奖城市分布图", "数据包括连续3届获奖作品", title_color="#fff",
+          title_pos="center", width=1000,height=600, background_color='#404a59')#对画布进行设置
+attr, value = geo.cast(data)#使用函数分为两个list
+geo.add("", attr, value, visual_range=[0, 40], maptype='china',visual_text_color="#fff",
+        symbol_size=10, is_visualmap=True)#画图
+geo.render(r'C:\Users\lin\Desktop\校园套件项目\friend.html')#设置保存路径
+
+map = Map("青少年科技创新大赛国赛获奖城市分布图",'数据包括连续3届获奖作品', width=1000, height=600)
+map.add("", attr, value, visual_range=[0, 40],  maptype='china', is_visualmap=True,
+    visual_text_color='#000')
+map.render(r'C:\Users\lin\Desktop\校园套件项目\2friend.html')
+
+geo = Geo("青少年科技创新大赛国赛获奖城市分布图", "数据包括连续3届获奖作品",
+          title_color="#fff", title_pos="center", width=1200, height=600,
+          background_color='#404a59')
+geo.add("", attr, value, visual_range=[0, 30], type='heatmap',visual_text_color="#fff",
+        symbol_size=15, is_visualmap=True, is_roam=False)
+geo.render(r'C:\Users\lin\Desktop\校园套件项目\3friend.html')
+
+geo = Geo("青少年科技创新大赛国赛获奖城市分布图", "数据包括连续3届获奖作品", title_color="#fff",
+          title_pos="center", width=1200, height=600, background_color='#404a59')
+geo.add("", attr, value, type="effectScatter", is_random=True, effect_scale=5,
+        visual_range=[0, 40],visual_text_color="#fff", symbol_size=15,
+        is_visualmap=True, is_roam=False)
+geo.render(r'C:\Users\lin\Desktop\校园套件项目\4friend.html')
